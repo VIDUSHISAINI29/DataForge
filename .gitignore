@@ -76,10 +76,13 @@ waves.md
 
 # Python
 backend/__pycache__/
+backend/src/services/__pycache__/
+backend/src/routes/__pycache__/
+backend/src/controllers/__pycache__/
 *.pyc
+
 backend/venv/
 backend/.venv/
-
 
 # Data
 backend/data/
