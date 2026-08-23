@@ -75,10 +75,10 @@ pulse.md
 waves.md
 
 # Python
-__pycache__/
+backend/__pycache__/
 *.pyc
-venv/
-.venv/
+backend/venv/
+backend/.venv/
 
 
 # Data
