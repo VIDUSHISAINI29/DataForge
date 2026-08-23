@@ -1,16 +1,16 @@
 
+import os
 from fastapi import FastAPI
+from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware  # 1. Import the middleware
 from src.routes.index import api_router
+
+load_dotenv()
 
 app = FastAPI()
 
 # 2. Define your allowed origins (frontend URLs)
-origins = [
-    "http://localhost:5175",    # Vite / Vue default port
-    "http://localhost:3000",    # React default port
-    "https://yourfrontend.com"  # Your production domain
-]
+origins = os.getenv("FRONTEND_URL", "").split(",")
 
 # 3. Add the CORS middleware configuration to your app
 app.add_middleware(
