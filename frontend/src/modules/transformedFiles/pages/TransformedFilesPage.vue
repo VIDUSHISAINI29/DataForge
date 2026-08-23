@@ -16,6 +16,24 @@
       return fileStore.currentFile?.columns ?? [];
    });
 
+   const showExportDialog = ref(false);
+
+const exportedApiUrl = computed(() => {
+   return `${VITE_BACKEND_URL}/reads/export/${fileStore.currentFileName}`;
+});
+
+const copied = ref(false);
+
+const openExportDialog = () => {
+   copied.value = false;
+   showExportDialog.value = true;
+};
+
+const copyApiUrl = async () => {
+   await navigator.clipboard.writeText(exportedApiUrl.value);
+   copied.value = true;
+};
+
    const getSelectedFilePreview = async () => {
       try {
          let response = await axios.get(
@@ -116,12 +134,21 @@ LIMIT 2
             <div class="tw-flex tw-items-center tw-justify-between">
                <span class="tw-font-semibold">SQL Query</span>
 
-               <Button
-                  label="Run Query"
-                  icon="pi pi-play"
-                  class="tw-border-blue-600 tw-bg-blue-600"
-                  :loading="loading"
-                  @click="runQuery" />
+               <div class="tw-flex tw-gap-2">
+                  <Button
+                     label="Run Query"
+                     icon="pi pi-play"
+                     class="tw-border-blue-600 tw-bg-blue-600"
+                     :loading="loading"
+                     @click="runQuery" />
+
+                  <Button
+                     label="Export API"
+                     icon="pi pi-link"
+                     class="tw-border-blue-200 tw-bg-blue-200 tw-text-blue-600"
+                     severity="secondary"
+                     @click="openExportDialog" />
+               </div>
             </div>
 
             <textarea
@@ -138,7 +165,7 @@ LIMIT 2
 
          <!-- Result -->
          <div v-if="queryResult" class="tw-overflow-x-auto">
-            <span class="tw-mt-6 tw-px-1 tw-text-lg tw-font-semibold ">
+            <span class="tw-mt-6 tw-px-1 tw-text-lg tw-font-semibold">
                {{ fileStore.currentFileName }}
             </span>
          </div>
@@ -158,6 +185,42 @@ LIMIT 2
          </div>
       </div>
    </div>
+   <Dialog
+   v-model:visible="showExportDialog"
+   modal
+   header="Export API"
+   :style="{ width: '40rem' }">
+
+   <div class="tw-flex tw-flex-col tw-gap-4">
+
+      <div>
+         <p class="tw-m-0 tw-text-sm tw-text-gray-500">
+            Your transformed file is available through this API:
+         </p>
+      </div>
+
+      <div class="tw-flex tw-items-center tw-gap-2">
+         <InputText
+            :value="exportedApiUrl"
+            readonly
+            class="tw-flex-1" />
+
+         <Button
+            class="tw-bg-blue-600 tw-text-white tw-border-blue-600"
+            :label="copied ? 'Copied!' : 'Copy'"
+            :icon="copied ? 'pi pi-check' : 'pi pi-copy'"
+            @click="copyApiUrl" />
+      </div>
+
+      <div class="tw-flex tw-justify-end">
+         <Button
+            label="Close"
+            severity="secondary"
+            @click="showExportDialog = false" />
+      </div>
+
+   </div>
+</Dialog>
 </template>
 
 <style scoped></style>

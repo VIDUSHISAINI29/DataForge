@@ -22,22 +22,32 @@ def read_transformed_data_endpoint():
 #     return file    
 
 @read_file_router.get("/raw-file-preview/{file_name}")
-async def raw_preview_endpoint(
+def raw_preview_endpoint(
     file_name: str,
     limit: int = 10
 ):
-    return await get_preview_of_raw_file(
+    return get_preview_of_raw_file(
         file_name,
         limit
     )
 
 
 @read_file_router.get("/transformed-file-preview/{file_name}")
-async def transformed_preview_endpoint(
+def transformed_preview_endpoint(
     file_name: str,
     limit: int = 10
 ):
-    return await get_preview_of_transformed_file(
+    return get_preview_of_transformed_file(
+        file_name,
+        limit
+    )
+
+@read_file_router.get("/export/{file_name}")
+def export_transformed_file(
+    file_name: str,
+    limit: int = 100
+):
+    return get_preview_of_transformed_file(
         file_name,
         limit
     )

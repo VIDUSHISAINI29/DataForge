@@ -28,7 +28,7 @@ def get_list_of_transformed_files():
 #         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def get_preview_of_raw_file(
+def get_preview_of_raw_file(
     file_name: str,
     limit: int = 100
 ):
@@ -49,7 +49,7 @@ async def get_preview_of_raw_file(
 
 
     
-async def get_preview_of_transformed_file(
+def get_preview_of_transformed_file(
     file_name: str,
     limit: int = 100
 ):

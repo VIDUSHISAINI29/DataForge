@@ -1,8 +1,8 @@
 import { apiGet, apiPost } from '@/plugins/api';
 
-export const getRawFilesList = async () => {
-   return apiGet('/reads/read-raw-files-list');
-};
+interface fileList {
+    files: string[];
+}
 
 interface queryFilePayload {
    file_name: string | null;
@@ -17,10 +17,28 @@ export interface QueryFileResponse {
    };
 }
 
+export interface TransformQueryFileResponse {
+   message: string | null;
+}
+
+interface FilePreview {
+  columns: string[]
+  data: Record<string, unknown>[]
+}
+
+export const getSelectedRawFilePreview = async (file_name:string|null) => {
+   return apiGet<FilePreview>(`/reads/raw-file-preview/${file_name}`);
+};
+
+export const getRawFilesList = async () => {
+   return apiGet<fileList>('/reads/read-raw-files-list');
+};
+
+
 export const queryFile = async (payload: queryFilePayload,): Promise<QueryFileResponse> => {
    return apiPost<QueryFileResponse>('/query/query-raw-file', payload);
 };
 
 export const TransformFile = async (payload: queryFilePayload) => {
-   return apiPost('/query/transform-file', payload);
+   return apiPost<TransformQueryFileResponse>('/query/transform-file', payload);
 };

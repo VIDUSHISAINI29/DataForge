@@ -1,6 +1,6 @@
 <script setup lang="ts">
    import { ref, onMounted, computed } from 'vue';
-   import { getRawFilesList, queryFile, TransformFile } from '../api/rawFiles.api';
+   import { getRawFilesList, queryFile, TransformFile, getSelectedRawFilePreview } from '../api/rawFiles.api';
    import { useFileStore } from '@/shared/store/fileStore';
    import axios from 'axios';
 
@@ -24,28 +24,26 @@
    });
 
 
-   const getSelectedFilePreview = async () => {
-      try {
-         let response = await axios.get(
-            `${VITE_BACKEND_URL}/reads/raw-file-preview/${fileStore.currentFileName}`,
-         );
-         fileStore.currentFile = response?.data;
-         console.log('current file data - ', response?.data);
-      } catch (error: any) {
-         if (error.response) {
-            console.error('Server Error Data:', error.response.data);
-            console.error('Server Status:', error.response.status);
+   // const getSelectedFilePreview = async () => {
+   //    try {
+   //       let response = await getSelectedRawFilePreview(fileStore.currentFileName);
+   //       fileStore.currentFile = response;
+   //       console.log('current file data - ', response?.data);
+   //    } catch (error: any) {
+   //       if (error.response) {
+   //          console.error('Server Error Data:', error.response.data);
+   //          console.error('Server Status:', error.response.status);
 
-            console.log(
-               'error -',
-               error.response ||
-                  'Something went wrong while reading preview of the file.',
-            );
-         } else {
-            console.error('Preview Read failed:', error.message);
-         }
-      }
-   };
+   //          console.log(
+   //             'error -',
+   //             error.response ||
+   //                'Something went wrong while reading preview of the file.',
+   //          );
+   //       } else {
+   //          console.error('Preview Read failed:', error.message);
+   //       }
+   //    }
+   // };
 
    
 

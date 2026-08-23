@@ -27,37 +27,18 @@
    const selectedFile = ref<string | null>(null);
    const showFiles = ref(false);
 
-   // const getFilesList = async () => {
-   //    try {
-   //       let response = await axios.get(`${VITE_BACKEND_URL}/reads/read-files`);
-   //       rawFilesList.value = response?.data?.files;
-   //       console.log('files = ', rawFilesList.value);
-   //    } catch (error: any) {
-   //       if (error.response) {
-   //          console.error('Server Error Data:', error.response.data);
-   //          console.error('Server Status:', error.response.status);
-
-   //          console.log(
-   //             'error -',
-   //             error.response || 'Something went wrong while reading the file.',
-   //          );
-   //       } else {
-   //          console.error('Read failed:', error.message);
-   //       }
-   //    }
-   // };
-
    const route = useRoute();
    const router = useRouter();
    const isActive = (item: (typeof menuItems)[number]) => {
       return item.routes.some((path) => route.path.startsWith(path));
    };
 
-   const selectFile = (fileName: string) => {
-      selectedFile.value = fileName;
-      fileStore.currentFileName = fileName;
-      // console.log('selected-file', typeof(selectedFile.value))
-   };
+ const selectFile = async (fileName: string) => {
+   selectedFile.value = fileName;
+   fileStore.currentFileName = fileName;
+
+   await getSelectedFilePreview();
+};
 
    const getSelectedFilePreview = async () => {
       try {
@@ -93,20 +74,23 @@
 
    const openMenu = ref<string | null>(null);
 
-   const clickMenuItem = (menuItem: any) => {
-      
-      const hasSubMenu =
-         menuItem.name === 'Raw Files' || menuItem.name === 'Transformed Files';
+  const clickMenuItem = (menuItem: any) => {
+   const hasSubMenu =
+      menuItem.name === 'Raw Files' ||
+      menuItem.name === 'Transformed Files';
 
-      if (hasSubMenu) {
-         openMenu.value =
-            openMenu.value === menuItem.name ? null : menuItem.name;
-      } else {
-         openMenu.value = null;
-      }
+   if (hasSubMenu) {
+      openMenu.value =
+         openMenu.value === menuItem.name
+            ? null
+            : menuItem.name;
 
-      router.push(menuItem.routes[0]);
-   };
+      return; // ⭐ important
+   }
+
+   openMenu.value = null;
+   router.push(menuItem.routes[0]);
+};
 
    const getFilesForMenu = (menuName: string) => {
    if (menuName === 'Raw Files') {
@@ -120,13 +104,7 @@
    return []
 }
 
-   watch(selectedFile, async () => {
-      await getSelectedFilePreview();
-   });
-
-   onMounted(async () => {
-      // await getFilesList();
-   });
+  
 </script>
 <template>
    <div class="tw-flex tw-w-full tw-max-w-64 tw-flex-col tw-p-2">
@@ -170,7 +148,7 @@
                         menuItem.name === 'Transformed Files'
                      "
                      :class="[
-                        'pi tw-text-sm  tw-transition-colors tw-duration-300',
+                        'pi tw-text-sm tw-text-blue-600 tw-transition-colors tw-duration-300',
 
                         openMenu === menuItem.name
                            ? 'pi-angle-down tw-text-white'

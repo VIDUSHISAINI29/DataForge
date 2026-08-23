@@ -1,7 +1,11 @@
 import { apiGet, apiPost } from "@/plugins/api";
 
-export const getTransformedFilesList = async() => {
-    return apiGet('/reads/read-transformed-files-list');
+export interface QueryFileResponse {
+   message: string;
+   result: {
+      columns: string[];
+      data: Record<string, any>[];
+   };
 }
 
 interface queryFilePayload {
@@ -9,6 +13,14 @@ interface queryFilePayload {
     query: string
 }
 
+interface fileList {
+    files: string[];
+}
+
+export const getTransformedFilesList = async() => {
+    return apiGet<fileList>('/reads/read-transformed-files-list');
+}
+
 export const queryTransformedFile = async(payload: queryFilePayload) => {
-    return apiPost('/query/query-transformed-file', payload);
+    return apiPost<QueryFileResponse>('/query/query-transformed-file', payload);
 }
