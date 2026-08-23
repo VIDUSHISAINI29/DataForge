@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from fastapi import UploadFile, File
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 uploaded_file_path = ROOT / "data" / "raw" 
 

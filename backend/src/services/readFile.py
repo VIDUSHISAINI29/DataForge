@@ -5,7 +5,7 @@ import pandas as pd
 import duckdb
 from fastapi import HTTPException
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 DATA_DIR = ROOT / "data" / "raw" 
 TRANSFORMED_DATA_DIR = ROOT / "data" / "transformed" 
@@ -286,7 +286,7 @@ def get_raw_file_preview(
 
 def get_transformed_file_preview(
     file_name: str,
-    limit: int = 100
+    limit: int = 10
 ):
     """
     Returns a preview of the requested file.
