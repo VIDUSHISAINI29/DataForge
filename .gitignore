@@ -82,6 +82,9 @@ venv/
 
 
 # Data
-data/
-*.parquet
+backend/data/
 *.csv
+*.parquet
+*.json
+*.xlsx
+*.xls
