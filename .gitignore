@@ -73,3 +73,15 @@ coverage/
 architect.md
 pulse.md
 waves.md
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+
+# Data
+data/
+*.parquet
+*.csv
