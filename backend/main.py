@@ -25,4 +25,5 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello from FastAPI on Windows 11!"}
+    return {"message": "Hello from FastAPI on Windows 11!",
+            "status": "OK!"}
