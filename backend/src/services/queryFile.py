@@ -8,11 +8,15 @@ import duckdb
 from fastapi import HTTPException
 from src.services.readFile import dataframe_to_preview
 
-ROOT = Path(__file__).resolve().parent.parent.parent
 
-DATA_DIR = ROOT / "data" / "raw" 
-TRANSFORMED_DIR = ROOT / "data" / "transformed"
+DATA_ROOT = Path(
+    os.getenv("DATA_ROOT", "/app/data")
+)
 
+DATA_DIR = DATA_ROOT / "raw"
+TRANSFORMED_DIR = DATA_ROOT / "transformed"
+
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 TRANSFORMED_DIR.mkdir(parents=True, exist_ok=True)
 
 

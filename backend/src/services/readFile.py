@@ -5,10 +5,16 @@ import pandas as pd
 import duckdb
 from fastapi import HTTPException
 
-ROOT = Path(__file__).resolve().parent.parent.parent
 
-DATA_DIR = ROOT / "data" / "raw" 
-TRANSFORMED_DATA_DIR = ROOT / "data" / "transformed" 
+DATA_ROOT = Path(
+    os.getenv("DATA_ROOT", "/app/data")
+)
+
+DATA_DIR = DATA_ROOT / "raw"
+TRANSFORMED_DIR = DATA_ROOT / "transformed"
+
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+TRANSFORMED_DIR.mkdir(parents=True, exist_ok=True)
 
 def list_raw_files():
     """Lists all supported data files in the folder."""
