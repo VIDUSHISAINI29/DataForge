@@ -30,10 +30,40 @@ const openExportDialog = () => {
 };
 
 const copyApiUrl = async () => {
-   await navigator.clipboard.writeText(exportedApiUrl.value);
-   copied.value = true;
-};
+  const text = exportedApiUrl.value;
 
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textArea = document.createElement('textarea');
+
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+
+      document.body.appendChild(textArea);
+
+      textArea.focus();
+      textArea.select();
+
+      document.execCommand('copy');
+
+      document.body.removeChild(textArea);
+    }
+
+    copied.value = true;
+
+    setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+
+  } catch (error) {
+    console.error('Failed to copy API URL:', error);
+    copied.value = false;
+  }
+};
    const getSelectedFilePreview = async () => {
       try {
          let response = await axios.get(
