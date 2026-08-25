@@ -300,7 +300,7 @@ def get_transformed_file_preview(
     The reader is selected based on the file extension.
     """
 
-    file_path = TRANSFORMED_DATA_DIR / file_name
+    file_path = TRANSFORMED_DIR / file_name
 
     # Check file exists
     if not file_path.exists():
