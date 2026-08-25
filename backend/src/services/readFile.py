@@ -25,7 +25,7 @@ def list_raw_files():
 def list_transformed_files():
     """Lists all supported data files in the folder."""
     supported_extensions = (".csv", ".json", ".xlsx", ".xls", ".parquet")
-    files = [f for f in os.listdir(TRANSFORMED_DATA_DIR) if f.endswith(supported_extensions)]
+    files = [f for f in os.listdir(TRANSFORMED_DIR) if f.endswith(supported_extensions)]
     return {"files": files}
 
 
