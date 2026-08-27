@@ -199,7 +199,7 @@ LIMIT 2
                {{ fileStore.currentFileName }}
             </span>
          </div>
-         <div>
+         <div v-if="queryResult">
             <div v-if="rows" class="w-full">
                <DataTable
                   :value="rows"
@@ -212,6 +212,9 @@ LIMIT 2
                      :header="col" />
                </DataTable>
             </div>
+         </div>
+         <div v-else class="tw-w-full tw-h-52 tw-flex tw-justify-center tw-items-center">
+            <span class="tw-font-semibold">Select transformed file to see data.</span>
          </div>
       </div>
    </div>

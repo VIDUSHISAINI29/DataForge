@@ -176,8 +176,8 @@
          </Message>
 
          <!-- Result -->
-         <div v-if="queryResult" class="tw-overflow-x-auto"></div>
-         <div>
+         <div  class="tw-overflow-x-auto"></div>
+         <div v-if="queryResult">
             <div class="w-full">
                <DataTable
                   :value="rows"
@@ -190,6 +190,9 @@
                      :header="col" />
                </DataTable>
             </div>
+         </div>
+           <div v-else class="tw-w-full tw-h-52 tw-flex tw-justify-center tw-items-center">
+            <span class="tw-font-semibold">Select raw file to see data.</span>
          </div>
       </div>
    </div>
