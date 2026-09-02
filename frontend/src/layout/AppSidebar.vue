@@ -124,7 +124,7 @@
          <!-- <img class="tw-w-40 tw-p-1" src="/images/logo.png" alt=""> -->
 
          <span class="tw-pb-2 tw-text-2xl tw-font-bold tw-text-blue-600">
-            Data-Platform
+            Data-Forge
          </span>
       </div>
 
