@@ -139,6 +139,9 @@ const uploadFile = async () => {
             <p class="tw-mt-1 tw-text-sm tw-text-slate-400">
               CSV, Parquet, XLS or XLSX
             </p>
+            <p class="tw-mt-1 tw-text-sm tw-text-slate-600">
+              File size limit: 20MB
+            </p>
 
             <input
               id="file-upload"

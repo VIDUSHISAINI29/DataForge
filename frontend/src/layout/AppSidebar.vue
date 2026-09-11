@@ -1,10 +1,16 @@
 <script setup lang="ts">
    import { useRoute, useRouter } from 'vue-router';
-   import axios, { all } from 'axios';
-   import { ref, onMounted, computed, watchEffect, watch } from 'vue';
+   import axios from 'axios';
+   import { ref } from 'vue';
    import { useFileStore } from '@/shared/store/fileStore';
 
    const fileStore = useFileStore();
+
+const isMobileMenuOpen = ref(false);
+
+const closeMobileMenu = () => {
+   isMobileMenuOpen.value = false;
+};
 
    const menuItems = [
       {
@@ -25,12 +31,13 @@
    ];
 
    const VITE_BACKEND_URL = import.meta.env.VITE_API_URL;
-
    const selectedFile = ref<string | null>(null);
-   const showFiles = ref(false);
 
    const route = useRoute();
    const router = useRouter();
+
+   // Mobile menu only
+   const mobileMenuOpen = ref(false);
 
    const isActive = (item: (typeof menuItems)[number]) => {
       return item.routes.some((path) => route.path.startsWith(path));
@@ -41,6 +48,9 @@
       fileStore.currentFileName = fileName;
 
       await getSelectedFilePreview();
+
+      // Close mobile menu after selecting a file
+      mobileMenuOpen.value = false;
    };
 
    const getSelectedFilePreview = async () => {
@@ -58,7 +68,6 @@
          }
 
          fileStore.currentFile = response?.data;
-
          fileStore.currentFileName = selectedFile.value;
       } catch (error: any) {
          if (error.response) {
@@ -78,20 +87,17 @@
 
    const openMenu = ref<string | null>(null);
 
-   // ⭐ Menu click handling
    const clickMenuItem = (menuItem: any) => {
       const hasSubMenu =
          menuItem.name === 'Raw Files' ||
          menuItem.name === 'Transformed Files';
 
-      // Raw Files / Transformed Files
       if (hasSubMenu) {
          openMenu.value =
             openMenu.value === menuItem.name
                ? null
                : menuItem.name;
 
-         // Navigate to the corresponding route
          if (route.path !== menuItem.routes[0]) {
             router.push(menuItem.routes[0]);
          }
@@ -99,8 +105,9 @@
          return;
       }
 
-      // Upload File
       openMenu.value = null;
+      mobileMenuOpen.value = false;
+
       router.push(menuItem.routes[0]);
    };
 
@@ -116,40 +123,73 @@
       return [];
    };
 </script>
-
 <template>
-   <div class="tw-flex tw-w-full tw-max-w-64 tw-flex-col tw-p-2">
+   <!-- Mobile menu button -->
+   <div class="tw-flex tw-justify-between tw-w-3/5 md:tw-hidden tw-sticky tw-mb-10 tw-left-4 tw-top-4 tw-z-50">
+      <button
+      @click="isMobileMenuOpen = true"
+      class=" tw-flex tw-h-10 tw-w-10 tw-items-center tw-justify-center tw-rounded-md tw-bg-blue-600 tw-text-white md:tw-hidden"
+   >
+      <i class="pi pi-bars"></i>
+   </button>
+   <span class="tw-text-blue-600 tw-text-2xl tw-font-bold">Data Forge</span>
+   </div>
 
-      <div class="tw-flex tw-items-center tw-justify-center tw-border-b-[1px]">
-         <!-- <img class="tw-w-40 tw-p-1" src="/images/logo.png" alt=""> -->
 
-         <span class="tw-pb-2 tw-text-2xl tw-font-bold tw-text-blue-600">
+
+   <!-- Overlay -->
+   <div
+      v-if="isMobileMenuOpen"
+      @click="closeMobileMenu"
+      class="tw-fixed tw-inset-0 tw-z-40 tw-bg-black/40 md:tw-hidden"
+   ></div>
+
+   <!-- Sidebar -->
+   <aside
+      :class="[
+         'tw-fixed tw-left-0 tw-top-0 tw-z-50 tw-h-screen tw-w-64 tw-bg-white tw-p-2 tw-transition-transform tw-duration-300 md:tw-static md:tw-z-auto md:tw-h-auto md:tw-translate-x-0',
+         isMobileMenuOpen
+            ? 'tw-translate-x-0'
+            : '-tw-translate-x-full',
+      ]"
+   >
+      <!-- Header -->
+      <div
+         class="tw-flex tw-items-center tw-justify-between tw-border-b-[1px] tw-px-2 tw-pb-2"
+      >
+         <span class="tw-text-2xl tw-font-bold tw-text-blue-600">
             Data-Forge
          </span>
+
+         <!-- Mobile close button -->
+         <button
+            @click="closeMobileMenu"
+            class="tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-md hover:tw-bg-gray-100 md:tw-hidden"
+         >
+            <i class="pi pi-times"></i>
+         </button>
       </div>
 
+      <!-- Existing menu -->
       <div
-         class="tw-flex tw-flex-col tw-gap-2 tw-border-b-[1px] tw-py-3 tw-text-sm tw-text-blue-600">
-
+         class="tw-flex tw-flex-col tw-gap-2 tw-border-b-[1px] tw-py-3 tw-text-sm tw-text-blue-600"
+      >
          <div
             v-for="(menuItem, index) in menuItems"
             :key="index"
             class="tw-flex tw-flex-col tw-justify-center"
             @click="clickMenuItem(menuItem)"
          >
-
             <!-- Main menu item -->
             <div
                :class="[
-                  'tw-flex tw-cursor-pointer tw-justify-between tw-rounded-md tw-px-4 tw-py-2 tw-transition-colors tw-duration-300 hover:tw-bg-blue-100',
+                  'tw-flex tw-cursor-pointer tw-justify-between tw-rounded-md tw-p-4 tw-transition-colors tw-duration-300 hover:tw-bg-blue-100',
                   isActive(menuItem)
                      ? 'tw-bg-blue-600 tw-text-white hover:tw-bg-blue-600'
                      : '',
                ]"
             >
-
                <div class="tw-flex tw-items-center tw-gap-2">
-
                   <i
                      :class="[
                         menuItem.icon,
@@ -163,102 +203,76 @@
                   <span class="tw-font-semibold">
                      {{ menuItem.name }}
                   </span>
-
                </div>
 
-               <div>
-
-                  <i
-                     v-if="
-                        menuItem.name === 'Raw Files' ||
-                        menuItem.name === 'Transformed Files'
-                     "
-                     :class="[
-                        'pi tw-text-sm  tw-transition-colors tw-duration-300',
-
-                        openMenu === menuItem.name
-                           ? 'pi-angle-down tw-text-white'
-                           : 'pi-angle-right',
-                     ]"
-                  ></i>
-
-               </div>
-
+               <i
+                  v-if="
+                     menuItem.name === 'Raw Files' ||
+                     menuItem.name === 'Transformed Files'
+                  "
+                  :class="[
+                     'pi tw-text-sm',
+                     openMenu === menuItem.name
+                        ? 'pi-angle-down tw-text-white'
+                        : 'pi-angle-right',
+                  ]"
+               ></i>
             </div>
-
 
             <!-- Raw Files -->
             <div
                v-if="
-                  fileStore.rawFilesList &&
                   openMenu === 'Raw Files' &&
                   menuItem.name === 'Raw Files'
                "
                v-for="(file, index) in getFilesForMenu(menuItem.name)"
                :key="index"
                :class="[
-                  'flex tw-my-1 tw-cursor-pointer tw-flex-col tw-rounded-md tw-py-2 tw-transition-colors tw-duration-300 hover:tw-bg-blue-100',
-                  selectedFile == file
+                  'tw-my-1 tw-flex tw-cursor-pointer tw-flex-col tw-rounded-md tw-py-2 hover:tw-bg-blue-100',
+                  selectedFile === file
                      ? 'tw-bg-blue-200'
                      : 'tw-bg-blue-50',
                ]"
             >
-
                <div
                   @click.stop="selectFile(file)"
                   class="tw-flex tw-items-center tw-gap-2 tw-pl-3"
                >
-
                   <i
-                     class="pi pi-arrow-right tw-pt-1 tw-text-[10px] tw-font-light"
+                     class="pi pi-arrow-right tw-pt-1 tw-text-[10px]"
                   ></i>
 
-                  <span>
-                     {{ file }}
-                  </span>
-
+                  <span>{{ file }}</span>
                </div>
-
             </div>
-
 
             <!-- Transformed Files -->
             <div
                v-if="
-                  fileStore.transformedFilesList &&
                   openMenu === 'Transformed Files' &&
                   menuItem.name === 'Transformed Files'
                "
                v-for="(file, index) in getFilesForMenu(menuItem.name)"
                :key="index"
                :class="[
-                  'flex tw-my-1 tw-cursor-pointer tw-flex-col tw-rounded-md tw-py-2 tw-transition-colors tw-duration-300 hover:tw-bg-blue-100',
-                  selectedFile == file
+                  'tw-my-1 tw-flex tw-cursor-pointer tw-flex-col tw-rounded-md tw-py-2 hover:tw-bg-blue-100',
+                  selectedFile === file
                      ? 'tw-bg-blue-200'
                      : 'tw-bg-blue-50',
                ]"
             >
-
                <div
                   @click.stop="selectFile(file)"
                   class="tw-flex tw-items-center tw-gap-2 tw-pl-3"
                >
-
                   <i
-                     class="pi pi-arrow-right tw-pt-1 tw-text-[10px] tw-font-light"
+                     class="pi pi-arrow-right tw-pt-1 tw-text-[10px]"
                   ></i>
 
-                  <span>
-                     {{ file }}
-                  </span>
-
+                  <span>{{ file }}</span>
                </div>
-
             </div>
-
          </div>
-
       </div>
-
-   </div>
+   </aside>
 </template>

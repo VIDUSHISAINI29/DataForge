@@ -159,6 +159,11 @@
                   @click="transformUsingQuery" />
               </div>
             </div>
+            <div>
+               <span class="tw-text-sm tw-text-gray-600">
+                  Use "data" to reference the selected raw file.
+               </span>
+            </div>
 
             <textarea
                v-model="query"

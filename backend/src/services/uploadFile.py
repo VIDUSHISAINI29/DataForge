@@ -11,11 +11,21 @@ DATA_ROOT = Path(
 
 DATA_DIR = DATA_ROOT / "raw"
 
+MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
+
 async def upload_file_service(file: UploadFile = File(...)):
-    # 1. Create the directories if they don't exist yet
-    # parents=True creates missing nested folders; exist_ok=True prevents crashes if they already exist
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+
+    if file_size > MAX_FILE_SIZE:
+        raise ValueError("File size cannot exceed 20 MB.")
+
     file_path = DATA_DIR / file.filename
+
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+
     return file_path

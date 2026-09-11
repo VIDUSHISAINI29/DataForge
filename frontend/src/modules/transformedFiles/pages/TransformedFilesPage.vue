@@ -181,6 +181,12 @@ LIMIT 2
                </div>
             </div>
 
+             <div>
+               <span class="tw-text-sm tw-text-gray-600">
+                  Use "data" to reference the selected transformed file.
+               </span>
+            </div>
+
             <textarea
                v-model="query"
                class="tw-min-h-[220px] tw-w-full tw-rounded-lg tw-border tw-p-4 tw-font-mono tw-text-sm"
