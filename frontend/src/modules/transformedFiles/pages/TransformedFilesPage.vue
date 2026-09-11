@@ -151,8 +151,8 @@ LIMIT 2
 
    onMounted(async () => {
       await getTransformedFilesListFunction();
-      console.log('row - ', fileStore.currentFile);
-      console.log('col - ', columns);
+      // console.log('row - ', fileStore.currentFile);
+      // console.log('col - ', columns);
    });
 </script>
 
@@ -200,7 +200,7 @@ LIMIT 2
          </Message>
 
          <!-- Result -->
-         <div v-if="queryResult" class="tw-overflow-x-auto">
+         <div v-if="fileStore.currentFile" class="tw-overflow-x-auto">
             <span class="tw-mt-6 tw-px-1 tw-text-lg tw-font-semibold">
                {{ fileStore.currentFileName }}
             </span>
