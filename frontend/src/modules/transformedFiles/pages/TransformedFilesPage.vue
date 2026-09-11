@@ -92,7 +92,12 @@ const queryResult = ref<{
 } | null>(null);
 
 const runQuery = async () => {
-  if (!query.value.trim() || !fileStore.currentFileName) {
+  if (!query.value.trim()) {
+    return;
+  }
+  if (fileStore.currentFileName === null) {
+    error.value =
+      'No file selected. Please select a transformed file to run the query.';
     return;
   }
 
@@ -110,13 +115,18 @@ const runQuery = async () => {
     // Show query result in the table
     fileStore.currentFile = queryResult.value;
 
-    console.log('query result - ', response.result);
+   //  console.log('query result - ', response.result);
   } catch (err: any) {
     console.log('err in querying transformed file - ', err);
-
+   if (fileStore.currentFileName === null) {
     error.value =
-      err.response?.data?.detail ||
-      'Failed to execute query';
+      'No file selected. Please select a transformed file to run the query.';
+    return;
+  } else{
+     error.value =
+       err.response?.data?.detail ||
+       'Failed to execute query';
+  }
   } finally {
     loading.value = false;
   }
@@ -129,10 +139,8 @@ const getTransformedFilesListFunction = async () => {
 
     fileStore.transformedFilesList = res?.files;
 
-    console.log(
-      'files transformed list - ',
-      res?.files
-    );
+   //  console.log('files transformed list - ',res?.files);
+   
   } catch (err: any) {
     if (err.response) {
       console.error(
@@ -188,9 +196,12 @@ onMounted(async () => {
       </div>
 
       <div>
-        <span class="tw-text-sm tw-text-gray-600">
+        <p class="tw-text-sm tw-text-gray-600">
           Use "data" to reference the selected transformed file.
-        </span>
+        </p>
+        <p class="tw-text-sm tw-text-gray-700">
+                  Here only select queries are allowed
+               </p>
       </div>
 
       <textarea

@@ -146,23 +146,138 @@ def execute_sql_query_for_transformed_file(
 
 
 
-def transform_file(
+def validate_file_name(file_name: str):
+    if not file_name or not file_name.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="Please select a file before continuing."
+        )
+
+
+def execute_sql_query_for_raw_file(
     file_name: str,
     query: str
 ):
+    validate_file_name(file_name)
+
     file_path = DATA_DIR / file_name
 
     if not file_path.exists():
         raise HTTPException(
             status_code=404,
-            detail="File not found"
+            detail="The selected file could not be found."
+        )
+
+    reader = get_reader(file_path)
+    connection = duckdb.connect()
+
+    try:
+        connection.execute(
+            f"""
+            CREATE TABLE data AS
+            SELECT *
+            FROM {reader}
+            """
+        )
+
+        query_type = query.strip().split()[0].upper()
+
+        if query_type == "SELECT":
+            df = connection.sql(query).limit(10).df()
+
+        else:
+            connection.execute(query)
+
+            df = connection.sql(
+                "SELECT * FROM data LIMIT 10"
+            ).df()
+
+        return {
+            "message": "Query executed successfully",
+            "result": dataframe_to_preview(df)
+        }
+
+    except Exception as e:
+        print("🔥 DUCKDB ERROR:", repr(e))
+        traceback.print_exc()
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Query failed: {str(e)}"
+        )
+
+    finally:
+        connection.close()
+
+
+def execute_sql_query_for_transformed_file(
+    file_name: str,
+    query: str
+):
+    validate_file_name(file_name)
+
+    file_path = TRANSFORMED_DIR / file_name
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="The selected transformed file could not be found."
+        )
+
+    reader = get_reader(file_path)
+    connection = duckdb.connect()
+
+    try:
+        connection.execute(
+            f"""
+            CREATE TABLE data AS
+            SELECT *
+            FROM {reader}
+            """
+        )
+
+        result = connection.sql(query)
+
+        # Only fetch rows needed for frontend preview
+        df = result.limit(10).df()
+
+        return {
+            "message": "Transformed file queried successfully",
+            "result": dataframe_to_preview(df)
+        }
+
+    except Exception as e:
+        print("🔥 DUCKDB ERROR:", repr(e))
+        traceback.print_exc()
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Query failed: {str(e)}"
+        )
+
+    finally:
+        connection.close()
+
+
+def transform_file(
+    file_name: str,
+    query: str
+):
+    validate_file_name(file_name)
+
+    file_path = DATA_DIR / file_name
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="The selected file could not be found."
         )
 
     reader = get_reader(file_path)
 
     output_path = (
-        TRANSFORMED_DIR /
-        f"{file_path.stem}_transformed.parquet"
+        TRANSFORMED_DIR
+        / f"{file_path.stem}_transformed.parquet"
     )
 
     connection = duckdb.connect()
@@ -195,6 +310,9 @@ def transform_file(
         }
 
     except Exception as e:
+        print("🔥 DUCKDB ERROR:", repr(e))
+        traceback.print_exc()
+
         raise HTTPException(
             status_code=400,
             detail=f"Transformation failed: {str(e)}"

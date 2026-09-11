@@ -1,6 +1,11 @@
 <script setup lang="ts">
    import { ref, onMounted, computed } from 'vue';
-   import { getRawFilesList, queryFile, TransformFile, getSelectedRawFilePreview } from '../api/rawFiles.api';
+   import {
+      getRawFilesList,
+      queryFile,
+      TransformFile,
+      getSelectedRawFilePreview,
+   } from '../api/rawFiles.api';
    import { useFileStore } from '@/shared/store/fileStore';
    import axios from 'axios';
 
@@ -12,7 +17,7 @@
       LIMIT 2
    `);
    const loadingQueryResult = ref(false);
-   const transformFileQueryResult = ref<string | null>(null)
+   const transformFileQueryResult = ref<string | null>(null);
    const loadingTransformQueryResult = ref(false);
    const errorOfQuery = ref('');
    const errorOfTransformQuery = ref('');
@@ -22,7 +27,6 @@
    const columns = computed(() => {
       return fileStore.currentFile?.columns ?? [];
    });
-
 
    // const getSelectedFilePreview = async () => {
    //    try {
@@ -45,8 +49,6 @@
    //    }
    // };
 
-   
-
    const queryResult = ref<{
       columns: string[];
       data: Record<string, any>[];
@@ -56,6 +58,10 @@
       if (!query.value.trim()) {
          return;
       }
+      if (fileStore.currentFileName === null) {
+         errorOfQuery.value =
+            'No file selected. Please select a raw file to run the query.';
+      }
 
       loadingQueryResult.value = true;
       errorOfQuery.value = '';
@@ -64,16 +70,23 @@
          let queryFilePayload = {
             file_name: fileStore.currentFileName,
             query: query.value,
-         }
+         };
          const response = await queryFile(queryFilePayload);
-         
+
          queryResult.value = response?.result;
          fileStore.currentFile = queryResult.value;
          // console.log('query result - ', response?.result);
          // await getSelectedFilePreview();
       } catch (err: any) {
-         console.log('err in querying raw file - ', err)
-         errorOfQuery.value = err.response?.data?.detail || 'Failed to execute query';
+         // console.log('not found er - ',err);
+         console.log('err in querying raw file - ', err);
+         if (fileStore.currentFileName === null) {
+            errorOfQuery.value =
+               'No file selected. Please select a raw file to run the query.';
+         } else {
+            errorOfQuery.value =
+               err.response?.data?.detail || 'Failed to execute query';
+         }
       } finally {
          loadingQueryResult.value = false;
       }
@@ -91,17 +104,18 @@
          let queryFilePayload = {
             file_name: fileStore.currentFileName,
             query: query.value,
-         }
+         };
          const response = await TransformFile(queryFilePayload);
-         transformFileQueryResult.value = response?.message
-          queryResult.value = {
+         transformFileQueryResult.value = response?.message;
+         queryResult.value = {
             columns: [],
-            data: []
-          };
+            data: [],
+         };
          // console.log('query result - ', response);
          // await getSelectedFilePreview();
       } catch (err: any) {
-         errorOfTransformQuery.value = err.response?.data?.detail || 'Failed to execute query';
+         errorOfTransformQuery.value =
+            err.response?.data?.detail || 'Failed to execute query';
       } finally {
          loadingTransformQueryResult.value = false;
       }
@@ -111,7 +125,7 @@
       try {
          let res = await getRawFilesList();
          fileStore.rawFilesList = res?.files;
-         console.log('files raw list - ', res?.files);
+         // console.log('files raw list - ', res?.files);
       } catch (error: any) {
          if (error.response) {
             console.error('Server Error Data:', error.response.data);
@@ -143,26 +157,27 @@
             <div class="tw-flex tw-items-center tw-justify-between">
                <span class="tw-font-semibold">SQL Query</span>
 
-              <div class="tw-flex tw-gap-2">
-                <Button
-                  label="Run Query"
-                  icon="pi pi-play"
-                  class="tw-border-blue-600 tw-bg-blue-600"
-                  :loading="loadingQueryResult"
-                  @click="runQuery" />
+               <div class="tw-flex tw-gap-2">
+                  <Button
+                     label="Run Query"
+                     icon="pi pi-play"
+                     class="tw-border-blue-600 tw-bg-blue-600"
+                     :loading="loadingQueryResult"
+                     @click="runQuery" />
 
-                <Button
-                  label="Transform File"
-                  icon="pi pi-bolt"
-                  class="tw-border-blue-200 tw-text-blue-600 tw-bg-blue-200 "
-                  :loading="loadingTransformQueryResult"
-                  @click="transformUsingQuery" />
-              </div>
+                  <Button
+                     label="Transform File"
+                     icon="pi pi-bolt"
+                     class="tw-border-blue-200 tw-bg-blue-200 tw-text-blue-600"
+                     :loading="loadingTransformQueryResult"
+                     @click="transformUsingQuery" />
+               </div>
             </div>
             <div>
-               <span class="tw-text-sm tw-text-gray-600">
+               <p class="tw-text-sm tw-text-gray-600">
                   Use "data" to reference the selected raw file.
-               </span>
+               </p>
+               
             </div>
 
             <textarea
@@ -173,42 +188,40 @@
          </div>
 
          <!-- Error -->
-         <Message class="tw-my-1" v-if="errorOfQuery || errorOfTransformQuery" severity="error">
-            {{ errorOfQuery || errorOfTransformQuery}}
+         <Message
+            class="tw-my-1"
+            v-if="errorOfQuery || errorOfTransformQuery"
+            severity="error">
+            {{ errorOfQuery || errorOfTransformQuery }}
          </Message>
-         <Message class="tw-my-1" v-if="transformFileQueryResult" severity="success">
-            {{ transformFileQueryResult}}
+         <Message
+            class="tw-my-1"
+            v-if="transformFileQueryResult"
+            severity="success">
+            {{ transformFileQueryResult }}
          </Message>
 
          <!-- Result -->
-       <!-- Result -->
-<div
-  v-if="fileStore.currentFile"
-  class="tw-w-full tw-overflow-x-auto"
->
-  <DataTable
-    :value="rows"
-    paginator
-    :rows="5"
-    tableStyle="min-width: 50rem"
-  >
-    <Column
-      v-for="col in columns"
-      :key="col"
-      :field="col"
-      :header="col"
-    />
-  </DataTable>
-</div>
+         <!-- Result -->
+         <div v-if="fileStore.currentFile" class="tw-w-full tw-overflow-x-auto">
+            <DataTable
+               :value="rows"
+               paginator
+               :rows="5"
+               tableStyle="min-width: 50rem">
+               <Column
+                  v-for="col in columns"
+                  :key="col"
+                  :field="col"
+                  :header="col" />
+            </DataTable>
+         </div>
 
-<div
-  v-else
-  class="tw-flex tw-h-52 tw-w-full tw-items-center tw-justify-center"
->
-  <span class="tw-font-semibold">
-    Select raw file to see data.
-  </span>
-</div>
+         <div
+            v-else
+            class="tw-flex tw-h-52 tw-w-full tw-items-center tw-justify-center">
+            <span class="tw-font-semibold">Select raw file to see data.</span>
+         </div>
       </div>
    </div>
 </template>
