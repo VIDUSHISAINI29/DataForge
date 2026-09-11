@@ -98,7 +98,7 @@
             columns: [],
             data: []
           };
-         console.log('query result - ', response);
+         // console.log('query result - ', response);
          // await getSelectedFilePreview();
       } catch (err: any) {
          errorOfTransformQuery.value = err.response?.data?.detail || 'Failed to execute query';
@@ -129,8 +129,8 @@
    };
 
    onMounted(async () => {
-      console.log('row - ', fileStore.currentFile);
-      console.log('col - ', columns);
+      // console.log('row - ', fileStore.currentFile);
+      // console.log('col - ', columns);
       await getRawFilesListFunction();
    });
 </script>
@@ -181,24 +181,34 @@
          </Message>
 
          <!-- Result -->
-         <div  class="tw-overflow-x-auto"></div>
-         <div v-if="queryResult">
-            <div class="w-full">
-               <DataTable
-                  :value="rows"
-                  paginator
-                  :rows="5"
-                  tableStyle="min-width: 50rem">
-                  <Column
-                     v-for="(col, index) in columns"
-                     :field="col"
-                     :header="col" />
-               </DataTable>
-            </div>
-         </div>
-           <div v-else class="tw-w-full tw-h-52 tw-flex tw-justify-center tw-items-center">
-            <span class="tw-font-semibold">Select raw file to see data.</span>
-         </div>
+       <!-- Result -->
+<div
+  v-if="fileStore.currentFile"
+  class="tw-w-full tw-overflow-x-auto"
+>
+  <DataTable
+    :value="rows"
+    paginator
+    :rows="5"
+    tableStyle="min-width: 50rem"
+  >
+    <Column
+      v-for="col in columns"
+      :key="col"
+      :field="col"
+      :header="col"
+    />
+  </DataTable>
+</div>
+
+<div
+  v-else
+  class="tw-flex tw-h-52 tw-w-full tw-items-center tw-justify-center"
+>
+  <span class="tw-font-semibold">
+    Select raw file to see data.
+  </span>
+</div>
       </div>
    </div>
 </template>
