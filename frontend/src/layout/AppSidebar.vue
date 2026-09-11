@@ -123,7 +123,7 @@ const getFilesForMenu = (menuName: string) => {
 <template>
   <!-- Mobile menu button -->
   <div
-    class="tw-sticky tw-left-4 tw-top-4 tw-z-50 tw-mb-10 tw-flex tw-w-3/5 tw-justify-between md:tw-hidden"
+    class="tw-sticky tw-left-4 tw-top-4 tw-z-50 tw-mb-10 tw-flex tw-w-3/5 tw-justify-between lg:tw-hidden"
   >
     <button
       @click="isMobileMenuOpen = true"
@@ -143,13 +143,13 @@ const getFilesForMenu = (menuName: string) => {
   <div
     v-if="isMobileMenuOpen"
     @click="closeMobileMenu"
-    class="tw-fixed tw-inset-0 tw-z-40 tw-bg-black/40 md:tw-hidden"
+    class="tw-fixed tw-inset-0 tw-z-40 tw-bg-black/40 lg:tw-hidden"
   ></div>
 
   <!-- Sidebar -->
   <aside
     :class="[
-      'tw-fixed tw-left-0 tw-top-0 tw-z-50 tw-h-screen tw-w-64 tw-bg-white tw-p-2 tw-transition-transform tw-duration-300 md:tw-static md:tw-z-auto md:tw-h-auto md:tw-translate-x-0',
+      'tw-fixed tw-left-0 tw-top-0 tw-z-50 tw-h-screen tw-w-64 tw-bg-white tw-p-2 tw-transition-transform tw-duration-300 lg:tw-static lg:tw-z-auto lg:tw-h-auto lg:tw-translate-x-0',
       isMobileMenuOpen
         ? 'tw-translate-x-0'
         : '-tw-translate-x-full',
@@ -169,7 +169,7 @@ const getFilesForMenu = (menuName: string) => {
       <!-- Mobile close button -->
       <button
         @click="closeMobileMenu"
-        class="tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-md hover:tw-bg-gray-100 md:tw-hidden"
+        class="tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-md hover:tw-bg-gray-100 lg:tw-hidden"
       >
         <i class="pi pi-times"></i>
       </button>
